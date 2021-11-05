@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <title>Work Day Scheduler</title>
+  </head>
+
+  <body>
+    <header class="jumbotron">
+      <h1 class="display-3">Work Day Scheduler</h1>
+      <p class="lead">A simple calendar app for scheduling your work day</p>
+      <p id="currentDay" class="lead"></p>
+    </header>
+    <div class="container">
+      <!-- Timeblocks go here -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  </body>
+  <script>
+  
+    // Retreive data from localStorage, if applicable.
+    var todos = new Array(10);
+    for (var k = 0; k < 10; k++)
+    {
+      if (!localStorage.getItem(`Todo ${k + 9}`))
+      {
+      todos[k] = "";
+
+      }
+      else
+      {
+        todos[k] = localStorage.getItem(`Todo ${k + 9}`);
+
+      }
+    }
+    
+    function generate_table() {
+
+  // Get reference for calendar body
+  var body = document.getElementsByClassName("container")[0];
+  
+  // Create first 'Clear Entries' button
+  clearBtnTop = document.createElement('input');
+    clearBtnTop.type = "button";
+    clearBtnTop.className = "clearBtn";
+    clearBtnTop.id = '1';
+    clearBtnTop.value = "Clear Entries";
+    body.appendChild(clearBtnTop);
+
+// Clear local storage on button click
+    clearBtnTop.onclick = function() {
+      localStorage.clear();
+      location.reload();
+      return false;
+    }
+
+// Create first 'Save All Entries' button
+    var saveAllBtnTop = document.createElement('input');
+        saveAllBtnTop.type = "button";
+        saveAllBtnTop.className = "clearBtn";
+        saveAllBtnTop.value = 'Save All Entries';
+        body.appendChild(saveAllBtnTop);
+
+// Store all data in localStorage on button click
+    saveAllBtnTop.onclick = function() {
+      for (i = 9; i < 18; i++){
+          localStorage.setItem('Todo ' + i, document.getElementById("Data " + String(i)).value);
+        }
+}
+
+
+  // Create the table and table body elements
+  var tbl = document.createElement("table");
+  tbl.className = 'time-block';
+  var tblBody = document.createElement("tbody");
+
+// Grab current hour and store it in currentHour
+  var currentHour = moment().hour();
+  
+// Create rows
+  for (var i = 9; i < 18; i++) {
+    var row = document.createElement("tr");
+    row.className = 'time-block';
+
+// Create columns
+    for (var j = 0; j < 3; j++) {
+      var cell = document.createElement("td");
+
+// Organize columns
+      if (j === 0){
+      var cellText = document.createTextNode(`${
+            i < 12 ? `${i}AM` : i > 12 ? `${i - 12}PM` : "12PM"
+          }`);
+          cellText.className = 'hour';
+          cell.appendChild(cellText);}
+      
+      else if (j === 1){
+        var data = document.createElement('textarea');
+        
+        // Check whether slots are before or after current time.
+        data.className = `description ${
+            currentHour >= 18 ? "future" : i < currentHour ? "past" : i === currentHour ? "present" : "future"
+          }`;
+
+        data.id = `Data ${i}`;
+        data.value = `${todos[i-9] || ""}`;
+        cell.appendChild(data);
+        
+
+
+    }
+    // Create individual save buttons
+      else if (j === 2){
+        var saveBtn = document.createElement('input');
+        saveBtn.type = "button";
+        saveBtn.className = "saveBtn";
+        saveBtn.id = `${i}`;
+        saveBtn.value = 'Save Entry';
+        cell.appendChild(saveBtn);
+    }
+      row.appendChild(cell);
+    }
+    // Create save functionality on click to store current data element in localStorage
+    saveBtn.onclick = function() {
+      var click = event.srcElement.id;
+      parseInt(click);
+          localStorage.setItem('Todo ' + click, document.getElementById("Data " + String(click)).value);
+        }
+    // Add the row to the end of the table body
+    tblBody.appendChild(row);
+  }
+
+  // Put the table body inside of the table
+  tbl.appendChild(tblBody);
+  // Put the table into the document body
+  body.appendChild(tbl);
+
+  // Create bottom clear button
+  clearBtn = document.createElement('input');
+    clearBtn.type = "button";
+    clearBtn.className = "clearBtn";
+    clearBtn.value = "Clear Entries";
+    body.appendChild(clearBtn);
+
+  // Establish bottom clear button functionality, to clear localStorage on click.
+    clearBtn.onclick = function() {
+      localStorage.clear();
+      location.reload();
+      return false;
+ }
+
+ // Create bottom save all button
+  var saveAllBtn = document.createElement('input');
+        saveAllBtn.type = "button";
+        saveAllBtn.className = "clearBtn";
+        saveAllBtn.value = 'Save Entries';
+        body.appendChild(saveAllBtn);
+ 
+// Establish bottom save all functionality, to store all elements of the calendar to localStorage.
+ saveAllBtn.onclick = function() {
+      for (i = 9; i < 18; i++){
+          localStorage.setItem('Todo ' + i, document.getElementById("Data " + String(i)).value);
+ }
+ }}
+
+// Initial call function to generate calendar table.
+    generate_table();
+    
+  </script>
+</html>
